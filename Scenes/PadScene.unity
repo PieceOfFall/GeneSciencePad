@@ -12520,7 +12520,7 @@ PrefabInstance:
     - target: {fileID: 6465672386617508358, guid: 1fa448b2655531b42aa5177cac7fa01f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: allDevice:poweroff
+      value: allDevice:pcPoweroff
       objectReference: {fileID: 0}
     - target: {fileID: 6465672386617508358, guid: 1fa448b2655531b42aa5177cac7fa01f,
         type: 3}
@@ -26619,7 +26619,7 @@ PrefabInstance:
     - target: {fileID: 6465672386617508358, guid: 1fa448b2655531b42aa5177cac7fa01f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: allDevice:poweron
+      value: allDevice:pcPoweron
       objectReference: {fileID: 0}
     - target: {fileID: 6465672386617508358, guid: 1fa448b2655531b42aa5177cac7fa01f,
         type: 3}
