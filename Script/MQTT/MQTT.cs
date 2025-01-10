@@ -3,6 +3,7 @@ using UnityEngine;
 using MQTTnet;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
 public class MQTT : MonoBehaviour
 {
     [HideInInspector]
@@ -20,6 +21,7 @@ public class MQTT : MonoBehaviour
     public Image statusImg;
     public Sprite connectSprite;
     public Sprite disconnectSprite;
+    private float lastDisconnectTime = 0;
     void Start()
     {
         IP = PlayerPrefs.GetString("ip", IP);
@@ -51,9 +53,30 @@ public class MQTT : MonoBehaviour
         if(Client != null)
         {
             statusImg.sprite = Client.IsConnected ? connectSprite : disconnectSprite;
+
+            if (!Client.IsConnected && lastDisconnectTime != 0 && DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastDisconnectTime > 20 * 1000f)
+            {
+                msgSubscribers.ForEach(subscriber =>
+                {
+                    subscriber.OnDestroy();
+                });
+                InitMqtt();
+                lastDisconnectTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            }
         }
-        
     }
+
+
+    public void resetConnect()
+    {
+      
+            msgSubscribers.ForEach(subscriber =>
+            {
+                subscriber.OnDestroy();
+            });
+            InitMqtt();
+    }
+
 
     private async void InitMqtt()
     {
@@ -63,6 +86,7 @@ public class MQTT : MonoBehaviour
 
         Client.DisconnectedAsync += async (e) =>
         {
+            lastDisconnectTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             Debug.LogError("连接已断开，正在重连");
             MqttClientConnectResult reconnectRet = await Client.ConnectAsync(mqttClientOptions);
             if (reconnectRet.ResultCode == MqttClientConnectResultCode.Success)
