@@ -2,7 +2,7 @@ using MQTTnet.Client;
 using UnityEngine;
 using MQTTnet;
 using System.Collections.Generic;
-
+using UnityEngine.UI;
 public class MQTT : MonoBehaviour
 {
     [HideInInspector]
@@ -10,12 +10,16 @@ public class MQTT : MonoBehaviour
     [HideInInspector]
     public IMqttClient Client;
 
+
     public string IP = "127.0.0.1";
 
     public int Port = 1883;
 
     public List<MQTTMsgSubscribers> msgSubscribers;
 
+    public Image statusImg;
+    public Sprite connectSprite;
+    public Sprite disconnectSprite;
     void Start()
     {
         IP = PlayerPrefs.GetString("ip", IP);
@@ -36,6 +40,21 @@ public class MQTT : MonoBehaviour
         MQTTStore.mqttClient = Client;
     }
 
+
+    private void OnDestroy()
+    {
+        Client?.Dispose();
+    }
+
+    private void Update()
+    {
+        if(Client != null)
+        {
+            statusImg.sprite = Client.IsConnected ? connectSprite : disconnectSprite;
+        }
+        
+    }
+
     private async void InitMqtt()
     {
         MqttClientOptions mqttClientOptions = new MqttClientOptionsBuilder()
@@ -44,6 +63,7 @@ public class MQTT : MonoBehaviour
 
         Client.DisconnectedAsync += async (e) =>
         {
+            Debug.LogError("连接已断开，正在重连");
             MqttClientConnectResult reconnectRet = await Client.ConnectAsync(mqttClientOptions);
             if (reconnectRet.ResultCode == MqttClientConnectResultCode.Success)
             {
@@ -52,6 +72,7 @@ public class MQTT : MonoBehaviour
                     subscriber.OnDestroy();
                     subscriber.Init();
                 });
+                Debug.Log("MQTT连接成功");
             }
         };
 
